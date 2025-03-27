@@ -246,6 +246,12 @@ import FunnelChart from "../pages/Charts/ApexCharts/FunnelCharts/Index";
 import CampusSettings from "../pages/Settings/CampusSettings";
 import BlockSettings from "../pages/Settings/BlockSettings";
 import BuildingSettings from "../pages/Settings/BuildingSettings";
+import RoomTypeSettings from "../pages/Settings/RoomTypeSettings";
+import RoomFacilitySettings from "../pages/Settings/RoomFacilitySettings";
+import DepartmentTypeSettings from "../pages/Settings/DepartmentTypeSettings";
+import DepartmentSettings from "../pages/Settings/DepartmentSettings";
+import RoleSettings from "../pages/Settings/RoleSettings";
+import UserSettings from "../pages/Settings/UserSettings";
 
 const authProtectedRoutes = [
   { path: "/dashboard-analytics", component: <DashboardAnalytics /> },
@@ -454,9 +460,15 @@ const authProtectedRoutes = [
   { path: "/profile", component: <UserProfile /> },
 
   // Settings
-  { path: "/settings-campus", component: <CampusSettings /> },
-  { path: "/settings-block", component: <BlockSettings /> },
-  { path: "/settings-building", component: <BuildingSettings /> },
+  { path: "/settings-campuses", component: <CampusSettings /> },
+  { path: "/settings-blocks", component: <BlockSettings /> },
+  { path: "/settings-buildings", component: <BuildingSettings /> },
+  { path: "/settings-room-types", component: <RoomTypeSettings /> },
+  { path: "/settings-room-facilities", component: <RoomFacilitySettings /> },
+  { path: "/settings-department-types", component: <DepartmentTypeSettings /> },
+  { path: "/settings-departments", component: <DepartmentSettings /> },
+  { path: "/settings-roles", component: <RoleSettings /> },
+  { path: "/settings-users", component: <UserSettings /> },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name

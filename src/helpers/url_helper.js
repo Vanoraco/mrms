@@ -2,8 +2,8 @@
 export const POST_FAKE_REGISTER = "/auth/signup";
 
 //LOGIN
-export const POST_FAKE_LOGIN = "/auth/login";
-export const POST_FAKE_JWT_LOGIN = "/auth/login";
+export const POST_FAKE_LOGIN = "auth/login";
+export const POST_FAKE_JWT_LOGIN = "auth/login";
 export const POST_FAKE_PASSWORD_FORGET = "/auth/forgot-password";
 export const POST_FAKE_JWT_PASSWORD_FORGET = "/jwt-forget-pwd";
 export const SOCIAL_LOGIN = "/social-login";
@@ -273,3 +273,25 @@ export const GET_DEPARTMENT_TYPE = "/v1/department-types/";
 export const POST_DEPARTMENT_TYPE = "/v1/department-types";
 export const PUT_DEPARTMENT_TYPE = "/v1/department-types";
 export const DELETE_DEPARTMENT_TYPE = "/v1/department-types";
+
+// Department
+export const GET_DEPARTMENTS = "/v1/departments";
+export const GET_DEPARTMENT = "/v1/departments";
+export const POST_DEPARTMENT = "/v1/departments";
+export const PUT_DEPARTMENT = "/v1/departments";
+export const DELETE_DEPARTMENT = "/v1/departments";
+
+// Role
+export const GET_ROLES = "/v1/roles";
+export const GET_ROLE = "/v1/roles";
+export const POST_ROLE = "/v1/roles";
+export const PUT_ROLE = "/v1/roles";
+export const DELETE_ROLE = "/v1/roles";
+export const GET_PERMISSIONS = "/v1/roles";
+
+// User
+export const GET_USERS = "/v1/users";
+export const GET_USER = "/v1/users";
+export const POST_USER = "/v1/users";
+export const PUT_USER = "/v1/users";
+export const DELETE_USER = "/v1/users";

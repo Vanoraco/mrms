@@ -137,7 +137,7 @@ const BuildingSettings = () => {
 
   const handlePageChange = (page) => {
     console.log('Changing to page:', page); // Debug log
-    fetchBuildings(page + 1, pageSize); // Add 1 because API uses 1-based indexing
+    fetchBuildings(page, pageSize); // Using the page directly since TableContainer now sends 1-based page numbers
   };
 
   const handlePerPageChange = (size) => {

@@ -129,7 +129,7 @@ const BlockSettings = () => {
 
   const handlePageChange = (page) => {
     console.log('Changing to page:', page); // Debug log
-    fetchBlocks(page + 1, pageSize); // Add 1 because API uses 1-based indexing
+    fetchBlocks(page, pageSize); // Using the page directly since TableContainer now sends 1-based page numbers
   };
 
   const handlePerPageChange = (size) => {

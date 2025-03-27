@@ -300,19 +300,55 @@ const Navdata = () => {
                 {
                     id: "campus-settings",
                     label: "Campuses",
-                    link: "/settings-campus",
+                    link: "/settings-campuses",
                     parentId: "settings"
                 },
                 {
                     id: "block-settings",
                     label: "Blocks",
-                    link: "/settings-block",
+                    link: "/settings-blocks",
                     parentId: "settings"
                 },
                 {
                     id: "building-settings",
                     label: "Buildings",
-                    link: "/settings-building",
+                    link: "/settings-buildings",
+                    parentId: "settings"
+                },
+                {
+                    id: "room-type-settings",
+                    label: "Room Types",
+                    link: "/settings-room-types",
+                    parentId: "settings"
+                },
+                {
+                    id: "room-facility-settings",
+                    label: "Room Facilities",
+                    link: "/settings-room-facilities",
+                    parentId: "settings"
+                },
+                {
+                    id: "department-type-settings",
+                    label: "Department Types",
+                    link: "/settings-department-types",
+                    parentId: "settings"
+                },
+                {
+                    id: "department-settings",
+                    label: "Departments",
+                    link: "/settings-departments",
+                    parentId: "settings"
+                },
+                {
+                    id: "role-settings",
+                    label: "Roles",
+                    link: "/settings-roles",
+                    parentId: "settings"
+                },
+                {
+                    id: "user-settings",
+                    label: "Users",
+                    link: "/settings-users",
                     parentId: "settings"
                 }
             ]

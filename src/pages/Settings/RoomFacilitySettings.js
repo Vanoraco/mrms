@@ -15,15 +15,15 @@ import {
   Input,
   Spinner,
 } from "reactstrap";
-import { getCampuses, createCampus, updateCampus, deleteCampus } from "../../helpers/fakebackend_helper";
+import { getRoomFacilities, createRoomFacility, updateRoomFacility, deleteRoomFacility } from "../../helpers/fakebackend_helper";
 import { toast } from "react-toastify";
 import BreadCrumb from "../../Components/Common/BreadCrumb";
 import TableContainer from "../../Components/Common/TableContainer";
 import ConfirmationDialog from "../../Components/Common/ConfirmationDialog";
 import { truncateText } from "../../utils/truncateText";
 
-const CampusSettings = () => {
-  const [campuses, setCampuses] = useState([]);
+const RoomFacilitySettings = () => {
+  const [roomFacilities, setRoomFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [modal, setModal] = useState(false);
@@ -41,43 +41,39 @@ const CampusSettings = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [deleteName, setDeleteName] = useState("");
 
-  const fetchCampuses = async (page = 1, size = 10) => {
+  const fetchRoomFacilities = async (page = 1, size = 10) => {
     try {
       setLoading(true);
-      const response = await getCampuses(page, size);
-      console.log('API Response:', response); // Debug log
+      const response = await getRoomFacilities(page, size);
       if (response.status) {
-        setCampuses(response.data || []);
+        setRoomFacilities(response.data || []);
         // Get total from meta object
         const total = response.meta?.total || 0;
         const lastPage = response.meta?.last_page || 1;
-        console.log('Total Records:', total, 'Last Page:', lastPage); // Debug log
         setTotalRecords(total);
         setCurrentPage(response.meta?.current_page || 1);
         setPageSize(response.meta?.per_page || 10);
         setTotalPages(lastPage);
       }
     } catch (error) {
-      console.error('Error fetching campuses:', error); // Debug log
-      toast.error(error.message || "Failed to fetch campuses");
+      console.error('Error fetching room facilities:', error);
+      toast.error(error.message || "Failed to fetch room facilities");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCampuses(1, pageSize);
+    fetchRoomFacilities(1, pageSize);
   }, []);
 
   const handlePageChange = (page) => {
-    console.log('Changing to page:', page); // Debug log
-    fetchCampuses(page, pageSize); // Using the page directly since TableContainer now sends 1-based page numbers
+    fetchRoomFacilities(page, pageSize); // Using the page directly since TableContainer now sends 1-based page numbers
   };
 
   const handlePerPageChange = (size) => {
-    console.log('Changing page size to:', size); // Debug log
     setPageSize(size);
-    fetchCampuses(1, size); // Reset to first page when changing page size
+    fetchRoomFacilities(1, size); // Reset to first page when changing page size
   };
 
   const columns = useMemo(
@@ -142,45 +138,45 @@ const CampusSettings = () => {
       setUpdating(true);
       const payload = { ...formData };
       if (editMode) {
-        await updateCampus({ ...payload, id: editId });
-        toast.success("Campus updated successfully! 🏛️");
+        await updateRoomFacility({ ...payload, id: editId });
+        toast.success("Room facility updated successfully! 🖥️");
       } else {
-        await createCampus(payload);
-        toast.success("New campus added successfully! 🏛️");
+        await createRoomFacility(payload);
+        toast.success("New room facility added successfully! 🖥️");
       }
       toggleModal();
-      fetchCampuses(currentPage, pageSize); // Refresh current page
+      fetchRoomFacilities(currentPage, pageSize); // Refresh current page
     } catch (error) {
-      toast.error(error.message || "Failed to save campus");
+      toast.error(error.message || "Failed to save room facility");
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleEdit = (campus) => {
+  const handleEdit = (roomFacility) => {
     setFormData({
-      name: campus.name,
-      description: campus.description,
+      name: roomFacility.name,
+      description: roomFacility.description,
     });
     setEditMode(true);
-    setEditId(campus.id);
+    setEditId(roomFacility.id);
     setModal(true);
   };
 
-  const handleDeleteClick = (campus) => {
-    setDeleteId(campus.id);
-    setDeleteName(campus.name);
+  const handleDeleteClick = (roomFacility) => {
+    setDeleteId(roomFacility.id);
+    setDeleteName(roomFacility.name);
     setDeleteModal(true);
   };
 
   const handleDelete = async () => {
     try {
-      await deleteCampus({ id: deleteId });
-      toast.success("Campus deleted successfully! 🗑️");
+      await deleteRoomFacility({ id: deleteId });
+      toast.success("Room facility deleted successfully! 🗑️");
       setDeleteModal(false);
-      fetchCampuses(currentPage, pageSize);
+      fetchRoomFacilities(currentPage, pageSize);
     } catch (error) {
-      toast.error(error.message || "Failed to delete campus");
+      toast.error(error.message || "Failed to delete room facility");
     }
   };
 
@@ -193,13 +189,13 @@ const CampusSettings = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <BreadCrumb title="Campus Settings" pageTitle="Settings" />
+        <BreadCrumb title="Room Facility Settings" pageTitle="Settings" />
         <Row>
           <Col lg={12}>
             <Card>
               <CardBody>
                 <div className="d-flex align-items-center mb-3">
-                  <h5 className="card-title mb-0 flex-grow-1">Campus List</h5>
+                  <h5 className="card-title mb-0 flex-grow-1">Room Facility List</h5>
                   <div className="flex-shrink-0">
                     <Button
                       color="primary"
@@ -208,7 +204,7 @@ const CampusSettings = () => {
                       disabled={updating}
                     >
                       <i className="mdi mdi-plus me-1" />
-                      Add Campus
+                      Add Room Facility
                     </Button>
                   </div>
                 </div>
@@ -221,46 +217,11 @@ const CampusSettings = () => {
                 ) : (
                   <div className="table-responsive">
                     <TableContainer
-                      columns={[
-                        {
-                          Header: "Name",
-                          accessor: "name",
-                          sortable: true,
-                        },
-                        {
-                          Header: "Description",
-                          accessor: (row) => truncateText(row.description, 50),
-                          sortable: true,
-                        },
-                        {
-                          Header: "Actions",
-                          accessor: "actions",
-                          Cell: ({ row }) => (
-                            <div className="d-flex gap-2">
-                              <Button
-                                color="info"
-                                size="sm"
-                                className="btn-soft-info"
-                                onClick={() => handleEdit(row.original)}
-                              >
-                                <i className="ri-edit-line"></i>
-                              </Button>
-                              <Button
-                                color="danger"
-                                size="sm"
-                                className="btn-soft-danger"
-                                onClick={() => handleDeleteClick(row.original)}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </Button>
-                            </div>
-                          ),
-                        },
-                      ]}
-                      data={campuses}
+                      columns={columns}
+                      data={roomFacilities}
                       isGlobalFilter={true}
                       isGlobalSearch={true}
-                      SearchPlaceholder="Search campuses..."
+                      SearchPlaceholder="Search room facilities..."
                       customPageSize={pageSize}
                       divClass="table-responsive table-card mb-3"
                       tableClass="align-middle table-nowrap mb-0"
@@ -288,7 +249,7 @@ const CampusSettings = () => {
 
       <Modal isOpen={modal} toggle={toggleModal}>
         <ModalHeader toggle={toggleModal}>
-          {editMode ? "Edit Campus" : "Add Campus"}
+          {editMode ? "Edit Room Facility" : "Add Room Facility"}
         </ModalHeader>
         <ModalBody>
           <Form onSubmit={handleSubmit}>
@@ -298,7 +259,7 @@ const CampusSettings = () => {
                 type="text"
                 name="name"
                 id="name"
-                placeholder="Enter campus name"
+                placeholder="Enter room facility name"
                 value={formData.name}
                 onChange={handleInputChange}
                 required
@@ -311,7 +272,7 @@ const CampusSettings = () => {
                 type="textarea"
                 name="description"
                 id="description"
-                placeholder="Enter campus description"
+                placeholder="Enter room facility description"
                 value={formData.description}
                 onChange={handleInputChange}
                 required
@@ -340,8 +301,8 @@ const CampusSettings = () => {
       <ConfirmationDialog
         isOpen={deleteModal}
         toggle={() => setDeleteModal(false)}
-        title="Delete Campus"
-        message={`Are you sure you want to delete the campus "${deleteName}"? This action cannot be undone.`}
+        title="Delete Room Facility"
+        message={`Are you sure you want to delete the room facility "${deleteName}"? This action cannot be undone.`}
         onConfirm={handleDelete}
         confirmText="Delete"
         cancelText="Cancel"
@@ -352,4 +313,4 @@ const CampusSettings = () => {
   );
 };
 
-export default CampusSettings;
+export default RoomFacilitySettings;

@@ -57,7 +57,7 @@ export const postJwtRegister = (url, data) => {
 
 // Login Method
 export const postJwtLogin = (data) => {
-  return api.create("/auth/login", data)
+  return api.create("auth/login", data)
     .catch(err => {
       var message;
       if (err.response && err.response.status) {
@@ -451,15 +451,140 @@ export const updateRoom = (id, data) => api.put(url.PUT_ROOM + id, data);
 export const deleteRoom = (id) => api.delete(url.DELETE_ROOM + id);
 
 // Room Type APIs
-export const getRoomTypes = () => api.get(url.GET_ROOM_TYPES);
+export const getRoomTypes = (page = 1, limit = 10) => {
+  return api.get(url.GET_ROOM_TYPES, { params: { page, limit } });
+};
 export const getRoomType = (id) => api.get(url.GET_ROOM_TYPE + id);
 export const createRoomType = (data) => api.post(url.POST_ROOM_TYPE, data);
 export const updateRoomType = (id, data) => api.put(url.PUT_ROOM_TYPE + id, data);
 export const deleteRoomType = (id) => api.delete(url.DELETE_ROOM_TYPE + id);
 
 // Room Facility APIs
-export const getRoomFacilities = () => api.get(url.GET_ROOM_FACILITIES);
-export const getRoomFacility = (id) => api.get(url.GET_ROOM_FACILITY + id);
-export const createRoomFacility = (data) => api.post(url.POST_ROOM_FACILITY, data);
-export const updateRoomFacility = (id, data) => api.put(url.PUT_ROOM_FACILITY + id, data);
-export const deleteRoomFacility = (id) => api.delete(url.DELETE_ROOM_FACILITY + id);
+export const getRoomFacilities = (page = 1, limit = 10) => {
+  return api.get(url.GET_ROOM_FACILITIES, { params: { page, limit } });
+};
+export const getRoomFacility = (id) => api.get(`${url.GET_ROOM_FACILITY}${id}`);
+export const createRoomFacility = (data) => api.create(url.POST_ROOM_FACILITY, data);
+export const updateRoomFacility = (id, data) => api.update(`${url.PUT_ROOM_FACILITY}/${id}`, data);
+export const deleteRoomFacility = (id) => api.delete(`${url.DELETE_ROOM_FACILITY}/${id}`);
+
+// Department Type APIs
+export const getDepartmentTypes = (page = 1, limit = 10) => {
+  return api.get(url.GET_DEPARTMENT_TYPES, { params: { page, limit } });
+};
+export const getDepartmentType = (id) => api.get(`${url.GET_DEPARTMENT_TYPE}/${id}`);
+export const createDepartmentType = (data) => api.create(url.POST_DEPARTMENT_TYPE, data);
+export const updateDepartmentType = (data) => api.update(url.PUT_DEPARTMENT_TYPE, data);
+export const deleteDepartmentType = (data) => api.delete(url.DELETE_DEPARTMENT_TYPE, { data });
+
+// Department APIs
+export const getDepartments = (page = 1, limit = 10) => {
+  return api.get(url.GET_DEPARTMENTS, { params: { page, limit } });
+};
+export const getDepartment = (id) => api.get(`${url.GET_DEPARTMENT}/${id}`);
+export const createDepartment = (data) => api.create(url.POST_DEPARTMENT, data);
+export const updateDepartment = (data) => {
+  // Make sure we have the department ID
+  if (!data.id) {
+    throw new Error("Department ID is required for updating");
+  }
+  
+  // Clone the data to avoid mutating the original
+  const payload = { ...data };
+  
+  // Log the update request for debugging
+  console.log(`Updating department ${data.id} with:`, payload);
+  
+  // Use PATCH method with ID in URL
+  return api.patch(`${url.PUT_DEPARTMENT}/${data.id}`, payload);
+};
+export const deleteDepartment = (data) => api.delete(url.DELETE_DEPARTMENT, { data });
+
+// Role APIs
+export const getRoles = (page = 1, limit = 10) => {
+  return api.get(url.GET_ROLES, { params: { page, limit } });
+};
+export const getRole = (id) => api.get(`${url.GET_ROLE}/${id}`);
+export const createRole = (data) => api.create(url.POST_ROLE, data);
+export const updateRole = (data) => {
+  // Make sure we have the role ID
+  if (!data.id) {
+    throw new Error("Role ID is required for updating");
+  }
+  
+  // Clone the data to avoid mutating the original
+  const payload = { ...data };
+  
+  // Log the update request for debugging
+  console.log(`Updating role ${data.id} with:`, payload);
+  
+  // Use PATCH method with ID in URL
+  return api.patch(`${url.PUT_ROLE}/${data.id}`, payload);
+};
+export const deleteRole = (data) => api.delete(url.DELETE_ROLE, { data });
+
+// Extract permissions from roles instead of a separate API call
+export const getPermissions = async () => {
+  // Get all roles with their permissions included
+  const rolesResponse = await getRoles(1, 100); // Get up to 100 roles to collect all permissions
+  
+  if (rolesResponse.status && rolesResponse.data && rolesResponse.data.length > 0) {
+    // Create a map to store unique permissions by ID
+    const permissionsMap = new Map();
+    
+    // Extract all permissions from all roles
+    rolesResponse.data.forEach(role => {
+      if (role.permissions && Array.isArray(role.permissions)) {
+        role.permissions.forEach(permission => {
+          // Only add if we haven't seen this permission ID before
+          if (!permissionsMap.has(permission.id)) {
+            permissionsMap.set(permission.id, permission);
+          }
+        });
+      }
+    });
+    
+    // Convert Map values to array
+    const uniquePermissions = Array.from(permissionsMap.values());
+    
+    // Sort permissions by ID
+    uniquePermissions.sort((a, b) => a.id - b.id);
+    
+    // Return in the same format as the API would
+    return {
+      status: true,
+      message: "Permissions extracted from roles",
+      data: uniquePermissions
+    };
+  }
+  
+  // If we can't find any roles or permissions, return an empty array
+  return {
+    status: false,
+    message: "No permissions found",
+    data: []
+  };
+};
+
+// User APIs
+export const getUsers = (page = 1, limit = 10) => {
+  return api.get(url.GET_USERS, { params: { page, limit } });
+};
+export const getUser = (id) => api.get(`${url.GET_USER}/${id}`);
+export const createUser = (data) => api.create(url.POST_USER, data);
+export const updateUser = (data) => {
+  // Make sure we have the user ID
+  if (!data.id) {
+    throw new Error("User ID is required for updating");
+  }
+  
+  // Clone the data to avoid mutating the original
+  const payload = { ...data };
+  
+  // Log the update request for debugging
+  console.log(`Updating user ${data.id} with:`, payload);
+  
+  // Use PATCH method with ID in URL
+  return api.patch(`${url.PUT_USER}/${data.id}`, payload);
+};
+export const deleteUser = (data) => api.delete(url.DELETE_USER, { data });

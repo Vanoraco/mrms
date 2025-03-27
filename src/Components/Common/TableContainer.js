@@ -350,7 +350,7 @@ const TableContainer = ({
         <div className="col-sm-auto">
             <ul className="pagination pagination-separated pagination-md justify-content-center justify-content-sm-start mb-0">
                 <li className={currentPage === 1 ? "page-item disabled" : "page-item"}>
-                    <Link to="#" className="page-link" onClick={() => handlePageChange(currentPage - 2)}>Previous</Link>
+                    <Link to="#" className="page-link" onClick={() => onChangePage(currentPage - 1)}>Previous</Link>
                 </li>
                 {serverPagination ? (
                   // Server-side pagination page options
@@ -359,7 +359,7 @@ const TableContainer = ({
                       <Link 
                         to="#" 
                         className={currentPage === i + 1 ? "page-link active" : "page-link"} 
-                        onClick={() => handlePageChange(i)}
+                        onClick={() => onChangePage(i + 1)}
                       >
                         {i + 1}
                       </Link>
@@ -372,7 +372,7 @@ const TableContainer = ({
                       <Link 
                         to="#" 
                         className={pageIndex === item ? "page-link active" : "page-link"} 
-                        onClick={() => handlePageChange(item)}
+                        onClick={() => gotoPage(item)}
                       >
                         {item + 1}
                       </Link>
@@ -380,7 +380,7 @@ const TableContainer = ({
                   ))
                 )}
                 <li className={currentPage >= totalPages ? "page-item disabled" : "page-item"}>
-                    <Link to="#" className="page-link" onClick={() => handlePageChange(currentPage)}>Next</Link>
+                    <Link to="#" className="page-link" onClick={() => onChangePage(currentPage + 1)}>Next</Link>
                 </li>
             </ul>
         </div>
