@@ -75,7 +75,7 @@ const DashboardAnalytics = () => {
                             <div className="h-100">
                                 <Row>
                                     <Col xl={4}>
-                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-campus')}>
+                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-campuses')}>
                                             <CardBody>
                                                 <div className="d-flex align-items-center">
                                                     <div className="flex-grow-1 overflow-hidden">
@@ -105,7 +105,7 @@ const DashboardAnalytics = () => {
                                         </Card>
                                     </Col>
                                     <Col xl={4}>
-                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-block')}>
+                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-blocks')}>
                                             <CardBody>
                                                 <div className="d-flex align-items-center">
                                                     <div className="flex-grow-1 overflow-hidden">
@@ -135,7 +135,7 @@ const DashboardAnalytics = () => {
                                         </Card>
                                     </Col>
                                     <Col xl={4}>
-                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-building')}>
+                                        <Card className="card-animate" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings-buildings')}>
                                             <CardBody>
                                                 <div className="d-flex align-items-center">
                                                     <div className="flex-grow-1 overflow-hidden">
