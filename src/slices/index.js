@@ -1,13 +1,14 @@
-import { combineReducers } from "redux";
+import { combineReducers } from "@reduxjs/toolkit";
 
 // Front
-import LayoutReducer from "./layouts/reducer";
+import Layout from "./layouts/reducer";
 
 // Authentication
-import LoginReducer from "./auth/login/reducer";
-import AccountReducer from "./auth/register/reducer";
-import ForgetPasswordReducer from "./auth/forgetpwd/reducer";
-import ProfileReducer from "./auth/profile/reducer";
+import Login from "./auth/login/reducer";
+import Account from "./auth/register/reducer";
+import ForgetPassword from "./auth/forgetpwd/reducer";
+import Profile from "./auth/profile/reducer";
+import Settings from "./settings/reducer";
 
 //Calendar
 import CalendarReducer from "./calendar/reducer";
@@ -70,11 +71,12 @@ import JobReducer from "./jobs/reducer";
 import APIKeyReducer from "./apiKey/reducer";
 
 const rootReducer = combineReducers({
-    Layout: LayoutReducer,
-    Login: LoginReducer,
-    Account: AccountReducer,
-    ForgetPassword: ForgetPasswordReducer,
-    Profile: ProfileReducer,
+    Layout,
+    Login,
+    Account,
+    ForgetPassword,
+    Profile,
+    Settings,
     Calendar: CalendarReducer,
     Chat: chatReducer,
     Projects: ProjectsReducer,

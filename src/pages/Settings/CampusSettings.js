@@ -15,16 +15,22 @@ import {
   Input,
   Spinner,
 } from "reactstrap";
-import { getCampuses, createCampus, updateCampus, deleteCampus } from "../../helpers/fakebackend_helper";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  fetchCampuses, 
+  createCampusAsync, 
+  updateCampusAsync, 
+  deleteCampusAsync 
+} from "../../slices/settings/reducer";
 import BreadCrumb from "../../Components/Common/BreadCrumb";
 import TableContainer from "../../Components/Common/TableContainer";
 import ConfirmationDialog from "../../Components/Common/ConfirmationDialog";
 import { truncateText } from "../../utils/truncateText";
 
 const CampusSettings = () => {
-  const [campuses, setCampuses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { campuses, loading, error, pagination } = useSelector((state) => state.Settings);
   const [updating, setUpdating] = useState(false);
   const [modal, setModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,51 +39,20 @@ const CampusSettings = () => {
   });
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteName, setDeleteName] = useState("");
 
-  const fetchCampuses = async (page = 1, size = 10) => {
-    try {
-      setLoading(true);
-      const response = await getCampuses(page, size);
-      console.log('API Response:', response); // Debug log
-      if (response.status) {
-        setCampuses(response.data || []);
-        // Get total from meta object
-        const total = response.meta?.total || 0;
-        const lastPage = response.meta?.last_page || 1;
-        console.log('Total Records:', total, 'Last Page:', lastPage); // Debug log
-        setTotalRecords(total);
-        setCurrentPage(response.meta?.current_page || 1);
-        setPageSize(response.meta?.per_page || 10);
-        setTotalPages(lastPage);
-      }
-    } catch (error) {
-      console.error('Error fetching campuses:', error); // Debug log
-      toast.error(error.message || "Failed to fetch campuses");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchCampuses(1, pageSize);
-  }, []);
+    dispatch(fetchCampuses({ page: 1, size: pagination.pageSize }));
+  }, [dispatch, pagination.pageSize]);
 
   const handlePageChange = (page) => {
-    console.log('Changing to page:', page); // Debug log
-    fetchCampuses(page, pageSize); // Using the page directly since TableContainer now sends 1-based page numbers
+    dispatch(fetchCampuses({ page, size: pagination.pageSize }));
   };
 
   const handlePerPageChange = (size) => {
-    console.log('Changing page size to:', size); // Debug log
-    setPageSize(size);
-    fetchCampuses(1, size); // Reset to first page when changing page size
+    dispatch(fetchCampuses({ page: 1, size }));
   };
 
   const columns = useMemo(
@@ -140,16 +115,15 @@ const CampusSettings = () => {
     e.preventDefault();
     try {
       setUpdating(true);
-      const payload = { ...formData };
       if (editMode) {
-        await updateCampus({ ...payload, id: editId });
+        await dispatch(updateCampusAsync({ ...formData, id: editId })).unwrap();
         toast.success("Campus updated successfully! 🏛️");
       } else {
-        await createCampus(payload);
+        await dispatch(createCampusAsync(formData)).unwrap();
         toast.success("New campus added successfully! 🏛️");
       }
       toggleModal();
-      fetchCampuses(currentPage, pageSize); // Refresh current page
+      dispatch(fetchCampuses({ page: pagination.currentPage, size: pagination.pageSize }));
     } catch (error) {
       toast.error(error.message || "Failed to save campus");
     } finally {
@@ -175,10 +149,10 @@ const CampusSettings = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteCampus({ id: deleteId });
+      await dispatch(deleteCampusAsync({ id: deleteId })).unwrap();
       toast.success("Campus deleted successfully! 🗑️");
       setDeleteModal(false);
-      fetchCampuses(currentPage, pageSize);
+      dispatch(fetchCampuses({ page: pagination.currentPage, size: pagination.pageSize }));
     } catch (error) {
       toast.error(error.message || "Failed to delete campus");
     }
@@ -221,62 +195,27 @@ const CampusSettings = () => {
                 ) : (
                   <div className="table-responsive">
                     <TableContainer
-                      columns={[
-                        {
-                          Header: "Name",
-                          accessor: "name",
-                          sortable: true,
-                        },
-                        {
-                          Header: "Description",
-                          accessor: (row) => truncateText(row.description, 50),
-                          sortable: true,
-                        },
-                        {
-                          Header: "Actions",
-                          accessor: "actions",
-                          Cell: ({ row }) => (
-                            <div className="d-flex gap-2">
-                              <Button
-                                color="info"
-                                size="sm"
-                                className="btn-soft-info"
-                                onClick={() => handleEdit(row.original)}
-                              >
-                                <i className="ri-edit-line"></i>
-                              </Button>
-                              <Button
-                                color="danger"
-                                size="sm"
-                                className="btn-soft-danger"
-                                onClick={() => handleDeleteClick(row.original)}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </Button>
-                            </div>
-                          ),
-                        },
-                      ]}
+                      columns={columns}
                       data={campuses}
                       isGlobalFilter={true}
                       isGlobalSearch={true}
                       SearchPlaceholder="Search campuses..."
-                      customPageSize={pageSize}
+                      customPageSize={pagination.pageSize}
                       divClass="table-responsive table-card mb-3"
                       tableClass="align-middle table-nowrap mb-0"
                       theadClass="table-light table-nowrap"
                       thClass="table-light text-muted"
                       pagination={true}
-                      paginationPageSize={pageSize}
-                      paginationTotalRows={totalRecords}
-                      paginationPerPage={pageSize}
+                      paginationPageSize={pagination.pageSize}
+                      paginationTotalRows={pagination.totalRecords}
+                      paginationPerPage={pagination.pageSize}
                       paginationRowsPerPageOptions={[10, 25, 50, 100]}
                       onChangePage={handlePageChange}
                       onChangeRowsPerPage={handlePerPageChange}
                       serverPagination={true}
-                      totalRecords={totalRecords}
-                      totalPages={totalPages}
-                      currentPage={currentPage}
+                      totalRecords={pagination.totalRecords}
+                      totalPages={pagination.totalPages}
+                      currentPage={pagination.currentPage}
                     />
                   </div>
                 )}

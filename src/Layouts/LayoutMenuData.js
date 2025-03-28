@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getCampuses, getBlocks, getBuildings } from "../helpers/fakebackend_helper";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { getLoggedinUser } from "../helpers/api_helper";
+import { fetchCampuses, fetchBlocks, fetchBuildings } from "../slices/settings/reducer";
 
 const Navdata = () => {
     const history = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const { campuses, blocks, buildings, loading, error } = useSelector((state) => state.Settings);
     
     //state data
     const [isDashboard, setIsDashboard] = useState(false);
@@ -23,17 +25,14 @@ const Navdata = () => {
     const [isMultiLevel, setIsMultiLevel] = useState(false);
     const [isSettings, setIsSettings] = useState(false);
 
-    // Data states
-    const [campuses, setCampuses] = useState([]);
-    const [blocks, setBlocks] = useState([]);
-    const [buildings, setBuildings] = useState([]);
+    // UI states
     const [isCampusOpen, setIsCampusOpen] = useState(false);
     const [openItems, setOpenItems] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const [pageSize] = useState(10);
 
     const [iscurrentState, setIscurrentState] = useState('Dashboard');
+    const [activeSubMenu, setActiveSubMenu] = useState('');
 
     // Reset all other states when one is active
     const resetStates = () => {
@@ -52,43 +51,54 @@ const Navdata = () => {
         setIsSettings(false);
     };
 
+    // Effect to check current route and set active states
+    useEffect(() => {
+        const path = location.pathname;
+        
+        // Set Dashboard active
+        if (path === '/dashboard') {
+            resetStates();
+            setIsDashboard(true);
+            setIscurrentState('Dashboard');
+            return;
+        }
+        
+        // Check if current route is a settings page
+        if (path.includes('settings-')) {
+            resetStates();
+            setIsSettings(true);
+            setIscurrentState('Settings');
+            
+            // Set active submenu
+            setActiveSubMenu(path);
+        }
+    }, [location]);
+
     // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-                setError(null);
-
                 // Get current user and update auth headers
                 const user = getLoggedinUser();
                 if (!user) {
-                    setError("Please log in to view campus data");
                     return;
                 }
 
-                const [campusesData, blocksData, buildingsData] = await Promise.all([
-                    getCampuses(currentPage, pageSize),
-                    getBlocks(),
-                    getBuildings()
+                await Promise.all([
+                    dispatch(fetchCampuses({ page: currentPage, size: pageSize })),
+                    dispatch(fetchBlocks({ page: 1, size: 100 })), // Fetch all blocks
+                    dispatch(fetchBuildings({ page: 1, size: 100 })) // Fetch all buildings
                 ]);
-
-                setCampuses(campusesData.data || []);
-                setBlocks(blocksData.data || []);
-                setBuildings(buildingsData.data || []);
-                setTotalPages(campusesData.meta?.last_page || 1);
             } catch (err) {
-                setError(err.message);
                 console.error("Error fetching data:", err);
-            } finally {
-                setLoading(false);
             }
         };
 
         fetchData();
-    }, [currentPage, pageSize]);
+    }, [dispatch, currentPage, pageSize]);
 
     const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
+        if (newPage >= 1) {
             setCurrentPage(newPage);
         }
     };
@@ -128,12 +138,11 @@ const Navdata = () => {
                 updateIconSidebar(e);
             },
         },
-        /*{
+      {/*  {
             label: "pages",
             isHeader: true,
-        },*/
-        /*
-        {
+        },*/},
+       {/* {
             id: "campus",
             label: "AAU Campuses",
             icon: "ri-building-2-line",
@@ -219,59 +228,13 @@ const Navdata = () => {
             }).filter((item, index, self) =>
                 index === self.findIndex((t) => t.id === item.id)
             ),
-            footer: isCampusOpen && totalPages > 1 ? (
+            footer: isCampusOpen ? (
                 <div className="d-flex align-items-center justify-content-between mt-3 px-3 py-2 border-top">
                     <a
                         href="#"
                         className="btn btn-link btn-sm"
                         onClick={(e) => {
                             e.preventDefault();
-                            // Logic for "View All" campuses
-                            history("/campuses");
-                        }}
-                    >
-                        <i className="ri-eye-line align-middle me-1"></i> View All
-                    </a>
-                    <div className="pagination-controls d-flex align-items-center">
-                        <button 
-                            className="btn btn-sm btn-link p-0 me-2" 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (currentPage > 1) {
-                                    handlePageChange(currentPage - 1);
-                                }
-                            }}
-                            disabled={currentPage === 1}
-                            style={{ fontSize: '14px' }}
-                        >
-                            <i className="ri-arrow-left-line"></i>
-                        </button>
-                        <span className="mx-2" style={{ fontSize: '12px' }}>{currentPage} / Total</span>
-                        <button 
-                            className="btn btn-sm btn-link p-0 ms-2" 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (currentPage < totalPages) {
-                                    handlePageChange(currentPage + 1);
-                                }
-                            }}
-                            disabled={currentPage === totalPages}
-                            style={{ fontSize: '14px' }}
-                        >
-                            <i className="ri-arrow-right-line"></i>
-                        </button>
-                    </div>
-                </div>
-            ) : isCampusOpen ? (
-                <div className="d-flex align-items-center justify-content-between mt-3 px-3 py-2 border-top">
-                    <a
-                        href="#"
-                        className="btn btn-link btn-sm"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            // Logic for "View All" campuses
                             history("/campuses");
                         }}
                     >
@@ -279,8 +242,7 @@ const Navdata = () => {
                     </a>
                 </div>
             ) : null
-        },
-        */
+        },*/},
         {
             label: "Components",
             isHeader: true,
@@ -303,77 +265,112 @@ const Navdata = () => {
                     id: "campus-settings",
                     label: "Campuses",
                     link: "/settings-campuses",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-campuses",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-campuses");
+                        history("/settings-campuses");
+                    }
                 },
                 {
                     id: "block-settings",
                     label: "Blocks",
                     link: "/settings-blocks",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-blocks",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-blocks");
+                        history("/settings-blocks");
+                    }
                 },
                 {
                     id: "building-settings",
                     label: "Buildings",
                     link: "/settings-buildings",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-buildings",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-buildings");
+                        history("/settings-buildings");
+                    }
                 },
                 {
                     id: "room-type-settings",
                     label: "Room Types",
                     link: "/settings-room-types",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-room-types",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-room-types");
+                        history("/settings-room-types");
+                    }
                 },
                 {
                     id: "room-facility-settings",
                     label: "Room Facilities",
                     link: "/settings-room-facilities",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-room-facilities",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-room-facilities");
+                        history("/settings-room-facilities");
+                    }
                 },
                 {
                     id: "department-type-settings",
                     label: "Department Types",
                     link: "/settings-department-types",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-department-types",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-department-types");
+                        history("/settings-department-types");
+                    }
                 },
                 {
                     id: "department-settings",
                     label: "Departments",
                     link: "/settings-departments",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-departments",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-departments");
+                        history("/settings-departments");
+                    }
                 },
                 {
                     id: "role-settings",
                     label: "Roles",
                     link: "/settings-roles",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-roles",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-roles");
+                        history("/settings-roles");
+                    }
                 },
                 {
                     id: "user-settings",
                     label: "Users",
                     link: "/settings-users",
-                    parentId: "settings"
+                    parentId: "settings",
+                    isActive: activeSubMenu === "/settings-users",
+                    click: (e) => {
+                        e.preventDefault();
+                        setActiveSubMenu("/settings-users");
+                        history("/settings-users");
+                    }
                 }
             ]
-        },
-       /* {
-            id: "tables",
-            label: "Tables",
-            icon: "ri-layout-grid-line",
-            link: "/#",
-            click: function (e) {
-                e.preventDefault();
-                resetStates();
-                setIsTables(true);
-                setIscurrentState('Tables');
-                updateIconSidebar(e);
-            },
-            stateVariables: isTables,
-            subItems: [
-                { id: "basictables", label: "Basic Tables", link: "/tables-basic", parentId: "tables" },
-                { id: "listjs", label: "List Js", link: "/tables-listjs", parentId: "tables" },
-                { id: "reactdatatables", label: "React Datatables", link: "/tables-react", parentId: "tables" },
-            ],
-        },*/
+        }
     ];
     return <React.Fragment>{menuItems}</React.Fragment>;
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Collapse } from 'reactstrap';
 // Import Data
 import navdata from "../LayoutMenuData";
@@ -13,6 +13,7 @@ import { createSelector } from 'reselect';
 const VerticalLayout = (props) => {
     const navData = navdata().props.children;
     const path = props.router.location.pathname;
+    const navigate = useNavigate();
 
     /*
  layout settings
@@ -185,12 +186,14 @@ const VerticalLayout = (props) => {
                                                             <li className="nav-item">
                                                                 <Link
                                                                     to={subItem.link ? subItem.link : "/#"}
-                                                                    className="nav-link"
+                                                                    className={`nav-link ${subItem.isActive ? 'active' : ''}`}
                                                                     onClick={(e) => {
                                                                         e.preventDefault();
                                                                         e.stopPropagation();
-                                                                        if (subItem.link && subItem.link !== "/#") {
-                                                                            window.location.href = subItem.link;
+                                                                        if (subItem.click) {
+                                                                            subItem.click(e);
+                                                                        } else if (subItem.link && subItem.link !== "/#") {
+                                                                            navigate(subItem.link);
                                                                         }
                                                                     }}
                                                                 >
@@ -200,79 +203,46 @@ const VerticalLayout = (props) => {
                                                         ) : (
                                                             <li className="nav-item">
                                                                 <Link
-                                                                    onClick={subItem.click}
-                                                                    className="nav-link"
-                                                                    to="/#"
-                                                                    data-bs-toggle="collapse"
+                                                                    to={subItem.link ? subItem.link : "/#"}
+                                                                    className={`nav-link ${subItem.isActive ? 'active' : ''}`}
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        if (subItem.click) {
+                                                                            subItem.click(e);
+                                                                        }
+                                                                    }}
                                                                 >
                                                                     {props.t(subItem.label)}
                                                                 </Link>
                                                                 <Collapse className="menu-dropdown" isOpen={subItem.stateVariables} id={`sidebar${subItem.id}`}>
                                                                     <ul className="nav nav-sm flex-column">
-                                                                        {subItem.childItems && (
-                                                                            (subItem.childItems || []).map((childItem, key) => (
-                                                                                <React.Fragment key={key}>
-                                                                                    {!childItem.childItems ? (
-                                                                                        <li className="nav-item">
-                                                                                            <Link
-                                                                                                to={childItem.link}
-                                                                                                className="nav-link"
-                                                                                                onClick={(e) => {
-                                                                                                    e.preventDefault();
-                                                                                                    e.stopPropagation();
-                                                                                                    if (childItem.link && childItem.link !== "/#") {
-                                                                                                        window.location.href = childItem.link;
-                                                                                                    }
-                                                                                                }}
-                                                                                            >
-                                                                                                {props.t(childItem.label)}
-                                                                                            </Link>
-                                                                                        </li>
-                                                                                    ) : (
-                                                                                        <li className="nav-item">
-                                                                                            <Link
-                                                                                                onClick={childItem.click}
-                                                                                                className="nav-link"
-                                                                                                to="/#"
-                                                                                                data-bs-toggle="collapse"
-                                                                                            >
-                                                                                                {props.t(childItem.label)}
-                                                                                            </Link>
-                                                                                            <Collapse className="menu-dropdown" isOpen={childItem.stateVariables} id={`sidebar${childItem.id}`}>
-                                                                                                <ul className="nav nav-sm flex-column">
-                                                                                                    {childItem.childItems.map((subChildItem, key) => (
-                                                                                                        <li className="nav-item" key={key}>
-                                                                                                            <Link
-                                                                                                                to={subChildItem.link}
-                                                                                                                className="nav-link"
-                                                                                                                onClick={(e) => {
-                                                                                                                    e.preventDefault();
-                                                                                                                    e.stopPropagation();
-                                                                                                                    if (subChildItem.link && subChildItem.link !== "/#") {
-                                                                                                                        window.location.href = subChildItem.link;
-                                                                                                                    }
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                {props.t(subChildItem.label)}
-                                                                                                            </Link>
-                                                                                                        </li>
-                                                                                                    ))}
-                                                                                                </ul>
-                                                                                            </Collapse>
-                                                                                        </li>
-                                                                                    )}
-                                                                                </React.Fragment>
-                                                                            ))
-                                                                        )}
+                                                                        {subItem.childItems && subItem.childItems.map((childItem, key) => (
+                                                                            <li className="nav-item" key={key}>
+                                                                                <Link
+                                                                                    to={childItem.link}
+                                                                                    className="nav-link"
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        e.stopPropagation();
+                                                                                        if (childItem.click) {
+                                                                                            childItem.click(e);
+                                                                                        } else if (childItem.link && childItem.link !== "/#") {
+                                                                                            navigate(childItem.link);
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    {props.t(childItem.label)}
+                                                                                </Link>
+                                                                            </li>
+                                                                        ))}
                                                                     </ul>
                                                                 </Collapse>
                                                             </li>
                                                         )}
                                                     </React.Fragment>
-                                                ))
-                                                )}
+                                                )))}
                                             </ul>
-
                                         </Collapse>
                                     </li>
                                 ) : (

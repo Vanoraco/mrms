@@ -9,6 +9,17 @@ import VerticalLayout from "../Layouts/index";
 import { authProtectedRoutes, publicRoutes } from "./allRoutes";
 import { AuthProtected } from './AuthProtected';
 
+// Settings Components
+import CampusSettings from "../pages/Settings/CampusSettings";
+import BlockSettings from "../pages/Settings/BlockSettings";
+import BuildingSettings from "../pages/Settings/BuildingSettings";
+import RoomTypeSettings from "../pages/Settings/RoomTypeSettings";
+import RoomFacilitySettings from "../pages/Settings/RoomFacilitySettings";
+import DepartmentTypeSettings from "../pages/Settings/DepartmentTypeSettings";
+import DepartmentSettings from "../pages/Settings/DepartmentSettings";
+import RoleSettings from "../pages/Settings/RoleSettings";
+import UserSettings from "../pages/Settings/UserSettings";
+
 const Index = () => {
     return (
         <React.Fragment>
