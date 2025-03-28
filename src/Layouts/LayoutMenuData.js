@@ -128,10 +128,11 @@ const Navdata = () => {
                 updateIconSidebar(e);
             },
         },
-        {
+        /*{
             label: "pages",
             isHeader: true,
-        },
+        },*/
+        /*
         {
             id: "campus",
             label: "AAU Campuses",
@@ -279,6 +280,7 @@ const Navdata = () => {
                 </div>
             ) : null
         },
+        */
         {
             label: "Components",
             isHeader: true,
